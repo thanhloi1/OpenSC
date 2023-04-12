@@ -664,14 +664,14 @@ int sc_read_binary(sc_card_t *card, unsigned int idx,
 			 * Let's just return what we've successfully read. */
 			break;
 		}
-		if ((idx > SIZE_MAX - (size_t) r)
-				|| (size_t) r > todo) {
-			/* `idx + r` or `todo - r` would overflow */
-			r = SC_ERROR_OFFSET_TOO_LARGE;
-		}
 		if (r < 0) {
 			sc_unlock(card);
 			LOG_FUNC_RETURN(card->ctx, r);
+		}
+		if ((idx > SIZE_MAX - (size_t) r) || (size_t) r > todo) {
+			/* `idx + r` or `todo - r` would overflow */
+			sc_unlock(card);
+			LOG_FUNC_RETURN(card->ctx, SC_ERROR_OFFSET_TOO_LARGE);
 		}
 
 		todo -= (size_t) r;
@@ -712,14 +712,14 @@ int sc_write_binary(sc_card_t *card, unsigned int idx,
 		r = card->ops->write_binary(card, idx, buf, chunk, flags);
 		if (r == 0 || r == SC_ERROR_FILE_END_REACHED)
 			break;
-		if ((idx > SIZE_MAX - (size_t) r)
-				|| (size_t) r > todo) {
-			/* `idx + r` or `todo - r` would overflow */
-			r = SC_ERROR_OFFSET_TOO_LARGE;
-		}
 		if (r < 0) {
 			sc_unlock(card);
 			LOG_FUNC_RETURN(card->ctx, r);
+		}
+		if ((idx > SIZE_MAX - (size_t) r) || (size_t) r > todo) {
+			/* `idx + r` or `todo - r` would overflow */
+			sc_unlock(card);
+			LOG_FUNC_RETURN(card->ctx, SC_ERROR_OFFSET_TOO_LARGE);
 		}
 
 		todo -= (size_t) r;
@@ -768,14 +768,14 @@ int sc_update_binary(sc_card_t *card, unsigned int idx,
 		r = card->ops->update_binary(card, idx, buf, chunk, flags);
 		if (r == 0 || r == SC_ERROR_FILE_END_REACHED)
 			break;
-		if ((idx > SIZE_MAX - (size_t) r)
-				|| (size_t) r > todo) {
-			/* `idx + r` or `todo - r` would overflow */
-			r = SC_ERROR_OFFSET_TOO_LARGE;
-		}
 		if (r < 0) {
 			sc_unlock(card);
 			LOG_FUNC_RETURN(card->ctx, r);
+		}
+		if ((idx > SIZE_MAX - (size_t) r) || (size_t) r > todo) {
+			/* `idx + r` or `todo - r` would overflow */
+			sc_unlock(card);
+			LOG_FUNC_RETURN(card->ctx, SC_ERROR_OFFSET_TOO_LARGE);
 		}
 
 		todo -= (size_t) r;
@@ -814,14 +814,14 @@ int sc_erase_binary(struct sc_card *card, unsigned int idx, size_t count,  unsig
 		r = card->ops->erase_binary(card, idx, todo, flags);
 		if (r == 0 || r == SC_ERROR_FILE_END_REACHED)
 			break;
-		if ((idx > SIZE_MAX - (size_t) r)
-				|| (size_t) r > todo) {
-			/* `idx + r` or `todo - r` would overflow */
-			r = SC_ERROR_OFFSET_TOO_LARGE;
-		}
 		if (r < 0) {
 			sc_unlock(card);
 			LOG_FUNC_RETURN(card->ctx, r);
+		}
+		if ((idx > SIZE_MAX - (size_t) r) || (size_t) r > todo) {
+			/* `idx + r` or `todo - r` would overflow */
+			sc_unlock(card);
+			LOG_FUNC_RETURN(card->ctx, SC_ERROR_OFFSET_TOO_LARGE);
 		}
 
 		todo -= (size_t) r;
@@ -987,13 +987,14 @@ int sc_read_record(sc_card_t *card, unsigned int rec_nr, unsigned int idx,
 			 * Let's just return what we've successfully read. */
 			break;
 		}
-		if ((idx > SIZE_MAX - (size_t) r) || (size_t) r > todo) {
-			/* `idx + r` or `todo - r` would overflow */
-			r = SC_ERROR_OFFSET_TOO_LARGE;
-		}
 		if (r < 0) {
 			sc_unlock(card);
 			LOG_FUNC_RETURN(card->ctx, r);
+		}
+		if ((idx > SIZE_MAX - (size_t) r) || (size_t) r > todo) {
+			/* `idx + r` or `todo - r` would overflow */
+			sc_unlock(card);
+			LOG_FUNC_RETURN(card->ctx, SC_ERROR_OFFSET_TOO_LARGE);
 		}
 
 		todo -= (size_t) r;
@@ -1075,13 +1076,14 @@ int sc_update_record(sc_card_t *card, unsigned int rec_nr, unsigned int idx,
 		r = card->ops->update_record(card, rec_nr, idx, buf, chunk, flags);
 		if (r == 0 || r == SC_ERROR_FILE_END_REACHED)
 			break;
-		if ((idx > SIZE_MAX - (size_t) r) || (size_t) r > todo) {
-			/* `idx + r` or `todo - r` would overflow */
-			r = SC_ERROR_OFFSET_TOO_LARGE;
-		}
 		if (r < 0) {
 			sc_unlock(card);
 			LOG_FUNC_RETURN(card->ctx, r);
+		}
+		if ((idx > SIZE_MAX - (size_t) r) || (size_t) r > todo) {
+			/* `idx + r` or `todo - r` would overflow */
+			sc_unlock(card);
+			LOG_FUNC_RETURN(card->ctx, SC_ERROR_OFFSET_TOO_LARGE);
 		}
 
 		todo -= (size_t) r;
