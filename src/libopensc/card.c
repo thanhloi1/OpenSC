@@ -662,6 +662,7 @@ int sc_read_binary(sc_card_t *card, unsigned int idx,
 		if (r < 0 && todo != count) {
 			/* the last command failed, but previous ones succeeded.
 			 * Let's just return what we've successfully read. */
+			sc_log(card->ctx, "Subsequent read failed with %d, returning what was read successfully.",
 			break;
 		}
 		if (r < 0) {
@@ -985,6 +986,7 @@ int sc_read_record(sc_card_t *card, unsigned int rec_nr, unsigned int idx,
 		if (r < 0 && todo != count) {
 			/* the last command failed, but previous ones succeeded.
 			 * Let's just return what we've successfully read. */
+			sc_log(card->ctx, "Subsequent read failed with %d, returning what was read successfully.",
 			break;
 		}
 		if (r < 0) {
