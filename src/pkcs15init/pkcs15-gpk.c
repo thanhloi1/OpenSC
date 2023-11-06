@@ -100,7 +100,7 @@ gpk_erase_card(struct sc_profile *pro, sc_pkcs15_card_t *p15card)
 
 	if (sc_card_ctl(p15card->card, SC_CARDCTL_GPK_IS_LOCKED, &locked) == 0
 	 && locked) {
-		sc_log(p15card->card->ctx, 
+		sc_log(p15card->card->ctx,
 			"This card is already personalized, unable to "
 			"create PKCS#15 structure.");
 		return SC_ERROR_NOT_SUPPORTED;
@@ -121,7 +121,7 @@ gpk_create_dir(sc_profile_t *profile, sc_pkcs15_card_t *p15card, sc_file_t *df)
 	SC_FUNC_CALLED(p15card->card->ctx, SC_LOG_DEBUG_VERBOSE);
 	if (sc_card_ctl(p15card->card, SC_CARDCTL_GPK_IS_LOCKED, &locked) == 0
 			&& locked) {
-		sc_log(p15card->card->ctx, 
+		sc_log(p15card->card->ctx,
 			"This card is already personalized, unable to "
 			"create PKCS#15 structure.");
 		return SC_ERROR_NOT_SUPPORTED;
@@ -335,7 +335,7 @@ gpk_init_pinfile(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	/* Create the PIN file. */
 	acl = sc_file_get_acl_entry(pinfile, SC_AC_OP_WRITE);
 	if (acl->method != SC_AC_NEVER) {
-		sc_log(p15card->card->ctx, 
+		sc_log(p15card->card->ctx,
 			"PIN file most be protected by WRITE=NEVER");
 		sc_file_free(pinfile);
 		return SC_ERROR_INVALID_ARGUMENTS;
@@ -509,7 +509,7 @@ gpk_generate_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	sc_file_t	*keyfile;
 	int             r, n;
 
-	sc_log(p15card->card->ctx, 
+	sc_log(p15card->card->ctx,
 		 "path=%s, %"SC_FORMAT_LEN_SIZE_T"u bits\n",
 		 sc_print_path(&key_info->path),
 		 key_info->modulus_length);
@@ -924,7 +924,7 @@ static int gpk_encode_rsa_key(sc_profile_t *profile, sc_card_t *card,
 		sc_pkcs15_prkey_info_t *info)
 {
 	if (!rsa->modulus.len || !rsa->exponent.len) {
-		sc_log(card->ctx, 
+		sc_log(card->ctx,
 			"incomplete RSA public key");
 		return SC_ERROR_INVALID_ARGUMENTS;
 	}
@@ -933,7 +933,7 @@ static int gpk_encode_rsa_key(sc_profile_t *profile, sc_card_t *card,
 	 * the only exponent supported by GPK4000 and GPK8000 */
 	if (rsa->exponent.len != 3
 	 || memcmp(rsa->exponent.data, "\001\000\001", 3)) {
-		sc_log(card->ctx, 
+		sc_log(card->ctx,
 			"unsupported RSA exponent");
 		return SC_ERROR_INVALID_ARGUMENTS;
 	}
@@ -952,7 +952,7 @@ static int gpk_encode_rsa_key(sc_profile_t *profile, sc_card_t *card,
 	if (!rsa->p.len || !rsa->q.len || !rsa->dmp1.len || !rsa->dmq1.len || !rsa->iqmp.len) {
 		/* No or incomplete CRT information */
 		if (!rsa->d.len) {
-			sc_log(card->ctx, 
+			sc_log(card->ctx,
 				"incomplete RSA private key");
 			return SC_ERROR_INVALID_ARGUMENTS;
 		}

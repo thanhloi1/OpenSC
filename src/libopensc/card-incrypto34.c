@@ -546,12 +546,12 @@ incrypto34_compute_signature(sc_card_t *card, const u8 *data, size_t datalen,
 	 * succeeds (this is not really beautiful, but currently the
 	 * only way I see) -- Nils
 	 */
-	sc_log(ctx, 
+	sc_log(ctx,
 		"trying RSA_PURE_SIG (padded DigestInfo)\n");
 	r = do_compute_signature(card, data, datalen, out, outlen);
 	if (r >= SC_SUCCESS)
 		SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, r);
-	sc_log(ctx, 
+	sc_log(ctx,
 		"trying RSA_SIG (just the DigestInfo)\n");
 	/* remove padding: first try pkcs1 bt01 padding */
 	r = sc_pkcs1_strip_01_padding(ctx, data, datalen, buf, &tmp_len);
@@ -570,7 +570,7 @@ incrypto34_compute_signature(sc_card_t *card, const u8 *data, size_t datalen,
 	r = do_compute_signature(card, buf, tmp_len, out, outlen);
 	if (r >= SC_SUCCESS)
 		SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE, r);
-	sc_log(ctx, 
+	sc_log(ctx,
 		"trying to sign raw hash value\n");
 	r = sc_pkcs1_strip_digest_info_prefix(NULL,buf,tmp_len,buf,&buf_len);
 	if (r != SC_SUCCESS)
