@@ -74,7 +74,7 @@ struct gpk_private_data {
 	u8		key[16];
 
 	/* crypto related data from set_security_env */
-	unsigned int	sec_algorithm;
+	unsigned long	sec_algorithm;
 	unsigned int	sec_hash_len;
 	unsigned int	sec_mod_len;
 	unsigned int	sec_padding;
@@ -730,7 +730,7 @@ gpk_compute_crycks(sc_card_t *card, sc_apdu_t *apdu,
 {
 	struct gpk_private_data *priv = DRVDATA(card);
 	u8		in[8], out[8], block[64];
-	unsigned int	len = 0, i;
+	size_t	len = 0, i;
 	int             r = SC_SUCCESS, outl;
 	EVP_CIPHER_CTX  *ctx = NULL;
 	EVP_CIPHER      *alg = NULL;
@@ -1008,7 +1008,8 @@ gpk_set_security_env(sc_card_t *card,
 {
 	struct gpk_private_data *priv = DRVDATA(card);
 	sc_apdu_t	apdu;
-	unsigned int	context, algorithm;
+	unsigned int	context;
+	unsigned long algorithm;
 	unsigned int	file_id;
 	u8		sysrec[7];
 	int		r;
@@ -1153,7 +1154,7 @@ reverse(u8 *out, size_t outlen, const u8 *in, size_t inlen)
 	outlen = inlen;
 	while (inlen--)
 		*out++ = in[inlen];
-	return outlen;
+	return (int)outlen;
 }
 
 /*
@@ -1204,7 +1205,7 @@ gpk_hash(sc_card_t *card, const u8 *data, size_t datalen)
  * Send the hashed data to the card.
  */
 static int
-gpk_init_hashed(sc_card_t *card, const u8 *digest, unsigned int len)
+gpk_init_hashed(sc_card_t *card, const u8 *digest, size_t len)
 {
 	sc_apdu_t	apdu;
 	u8		tsegid[64];
@@ -1451,8 +1452,7 @@ gpk_pkfile_init(sc_card_t *card, struct sc_cardctl_gpk_pkinit *args)
 	sc_apdu_t	apdu;
 	int		r;
 
-	sc_log(card->ctx, 
-		"gpk_pkfile_init(%u)\n", args->privlen);
+	sc_log(card->ctx, "gpk_pkfile_init(%zu)\n", args->privlen);
 
 	memset(&apdu, 0, sizeof(apdu));
 	apdu.cse = SC_APDU_CASE_1;
@@ -1479,11 +1479,11 @@ gpk_generate_key(sc_card_t *card, struct sc_cardctl_gpk_genkey *args)
 	int		r;
 	u8		buffer[256];
 
-	sc_log(card->ctx, 
-		"gpk_generate_key(%u)\n", args->privlen);
+	sc_log(card->ctx,
+		"gpk_generate_key(%zu)\n", args->privlen);
 	if (args->privlen != 512 && args->privlen != 1024) {
-		sc_log(card->ctx, 
-			"Key generation not supported for key length %d",
+		sc_log(card->ctx,
+			"Key generation not supported for key length %zu",
 			args->privlen);
 		return SC_ERROR_NOT_SUPPORTED;
 	}
@@ -1529,7 +1529,7 @@ gpk_pkfile_load(sc_card_t *card, struct sc_cardctl_gpk_pkload *args)
 	EVP_CIPHER_CTX  * ctx;
 	EVP_CIPHER      * alg;
 
-	sc_log(card->ctx,  "gpk_pkfile_load(fid=%04x, len=%d, datalen=%d)\n",
+	sc_log(card->ctx,  "gpk_pkfile_load(fid=%04x, len=%zu, datalen=%d)\n",
 			args->file->id, args->len, args->datalen);
 
 	ctx = EVP_CIPHER_CTX_new();

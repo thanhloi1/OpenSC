@@ -661,7 +661,7 @@ static int westcos_list_files(sc_card_t * card, u8 * buf, size_t buflen)
 	r = sc_check_sw(card, apdu.sw1, apdu.sw2);
 	if (r)
 		return (r);
-	return apdu.resplen;
+	return (int)apdu.resplen;
 }
 
 static int westcos_get_crypte_challenge(sc_card_t * card, const u8 * key,
@@ -686,7 +686,7 @@ static int westcos_get_crypte_challenge(sc_card_t * card, const u8 * key,
 	alg = sc_evp_cipher(card->ctx, "DES-EDE-ECB");
 	if (EVP_EncryptInit_ex(cctx, alg, NULL, key, NULL) != 1 ||
 		EVP_CIPHER_CTX_set_padding(cctx,0) != 1 ||
-		EVP_EncryptUpdate(cctx, result, &tmplen, buf, *len) != 1) {
+		EVP_EncryptUpdate(cctx, result, &tmplen, buf, (int)*len) != 1) {
 		EVP_CIPHER_CTX_free(cctx);
 		sc_evp_cipher_free(alg);
 		return SC_ERROR_INTERNAL;
@@ -1170,7 +1170,7 @@ static int westcos_sign_decipher(int mode, sc_card_t *card,
 			goto out2;
 
 		/* correct */
-		r = apdu.resplen;
+		r = (int)apdu.resplen;
 		goto out2;
 	}
 	if ((priv_data->env.flags) & SC_ALGORITHM_RSA_PAD_PKCS1)
@@ -1188,13 +1188,13 @@ static int westcos_sign_decipher(int mode, sc_card_t *card,
 		goto out;
 
 	do {
-		int alire;
+		size_t alire;
 		alire = min(((keyfile->size) - idx), sizeof(buf));
 		if (alire <= 0)
 			break;
 		sc_log(card->ctx,
-			"idx = %d, alire=%d\n", idx, alire);
-		r = sc_read_binary(card, idx, buf, alire, 0);
+			"idx = %d, alire=%zu\n", idx, alire);
+		r = sc_read_binary(card, idx, buf, (int)alire, 0);
 		if (r < 0)
 			goto out;
 		BIO_write(mem, buf, r);

@@ -150,7 +150,8 @@ akis_list_files(sc_card_t *card, u8 *buf, size_t buflen)
 	 */
 	sc_apdu_t apdu;
 	u8 rbuf[256];
-	size_t left, fids = 0;
+	size_t left;
+	int fids = 0;
 	u8 *p;
 	int r;
 

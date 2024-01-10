@@ -210,7 +210,7 @@ get_next_part:
 	goto get_next_part;
 
 end:
-	r = fids;
+	r = (int)fids;
 
 	LOG_FUNC_RETURN(card->ctx, r);
 }
@@ -517,7 +517,7 @@ static int do_compute_signature(sc_card_t *card,
 
 	if (apdu.sw1 == 0x90 && apdu.sw2 == 0x00) {
 		memcpy(out, rbuf, outlen);
-		SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_VERBOSE, apdu.resplen);
+		SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_VERBOSE, (int)apdu.resplen);
 	}
 	SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_VERBOSE, sc_check_sw(card, apdu.sw1, apdu.sw2));
 }

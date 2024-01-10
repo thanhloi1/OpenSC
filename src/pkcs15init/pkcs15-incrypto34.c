@@ -310,7 +310,7 @@ incrypto34_generate_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	struct sc_cardctl_incrypto34_genkey_info args;
 	struct sc_file	*temp;
 	u8		abignum[RSAKEY_MAX_SIZE];
-	unsigned int	keybits;
+	size_t	keybits;
 	int		algorithm, r, delete_it = 0;
 
 	if (obj->type != SC_PKCS15_TYPE_PRKEY_RSA) {
@@ -397,7 +397,8 @@ incrypto34_store_pin(sc_profile_t *profile, sc_card_t *card,
 	unsigned char	buffer[256];
 	unsigned char	pinpadded[16];
 	struct tlv	tlv;
-	unsigned int	attempts, minlen, maxlen;
+	unsigned int	attempts, maxlen;
+	size_t minlen;
 
 	if (auth_info->auth_type != SC_PKCS15_PIN_AUTH_TYPE_PIN)
 		return SC_ERROR_OBJECT_NOT_VALID;
@@ -444,7 +445,7 @@ incrypto34_store_pin(sc_profile_t *profile, sc_card_t *card,
 	again (0 or ff for unlimited usage) */
 	tlv_add(&tlv, 0x00);
 
-	tlv_add(&tlv, minlen);			/* minlen */
+	tlv_add(&tlv, (u8)minlen);			/* minlen */
 
 	/* AC conditions */
 	tlv_next(&tlv, 0x86);

@@ -219,7 +219,7 @@ static int sc_pkcs15emu_idprime_init(sc_pkcs15_card_t *p15card)
 			sc_log(card->ctx,  "No cert found,i=%d", i);
 			continue;
 		}
-		cert_info.path.count = cert_der.len;
+		cert_info.path.count = (int)cert_der.len;
 
 		sc_log(card->ctx,
 			 "cert len=%"SC_FORMAT_LEN_SIZE_T"u, cert_info.path.count=%d r=%d\n",
@@ -311,7 +311,7 @@ static int sc_pkcs15emu_idprime_init(sc_pkcs15_card_t *p15card)
 		} else if (cert_out->key->algorithm == SC_ALGORITHM_EC) {
 			pubkey_info.field_length = cert_out->key->u.ec.params.field_length;
 			prkey_info.field_length = cert_out->key->u.ec.params.field_length;
-			sc_log(card->ctx,  "adding ec public key r=%d usage=%x",r, pubkey_info.usage);
+			sc_log(card->ctx, "adding ec public key r=%d usage=%x", r, pubkey_info.usage);
 			r = sc_pkcs15emu_add_ec_pubkey(p15card, &pubkey_obj, &pubkey_info);
 			if (r < 0) {
 				free(pubkey_info.direct.spki.value);
@@ -320,15 +320,15 @@ static int sc_pkcs15emu_idprime_init(sc_pkcs15_card_t *p15card)
 			pubkey_info.direct.spki.value = NULL;
 			pubkey_info.direct.spki.len = 0;
 			if (prkey_info.key_reference >= 0) {
-				sc_log(card->ctx,  "adding ec private key r=%d usage=%x",r, prkey_info.usage);
+				sc_log(card->ctx, "adding ec private key r=%d usage=%x",r, prkey_info.usage);
 				r = sc_pkcs15emu_add_ec_prkey(p15card, &prkey_obj, &prkey_info);
 			} else {
-				sc_log(card->ctx,  "missing ec private key r=%d usage=%x",r, prkey_info.usage);
+				sc_log(card->ctx, "missing ec private key r=%d usage=%x",r, prkey_info.usage);
 			}
 			if (r < 0)
 				goto fail;
 		} else {
-			sc_log(card->ctx, "unsupported key.algorithm %d", cert_out->key->algorithm);
+			sc_log(card->ctx, "unsupported key.algorithm %lu", cert_out->key->algorithm);
 			sc_pkcs15_free_certificate(cert_out);
 			free(pubkey_info.direct.spki.value);
 			continue;

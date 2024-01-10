@@ -236,7 +236,7 @@ add_supported_mechs(test_cert_t *o)
  * and store related information
  */
 int callback_certificates(test_certs_t *objects,
-	CK_ATTRIBUTE template[], unsigned int template_size, CK_OBJECT_HANDLE object_handle)
+	CK_ATTRIBUTE template[], unsigned long template_size, CK_OBJECT_HANDLE object_handle)
 {
 	EVP_PKEY *evp = NULL;
 	const u_char *cp = NULL;
@@ -283,7 +283,7 @@ int callback_certificates(test_certs_t *objects,
  * Pair found private keys on the card with existing certificates
  */
 int callback_private_keys(test_certs_t *objects,
-	CK_ATTRIBUTE template[], unsigned int template_size, CK_OBJECT_HANDLE object_handle)
+	CK_ATTRIBUTE template[], unsigned long template_size, CK_OBJECT_HANDLE object_handle)
 {
 	test_cert_t *o = NULL;
 	char *key_id;
@@ -333,7 +333,7 @@ int callback_private_keys(test_certs_t *objects,
  * Pair found public keys on the card with existing certificates
  */
 int callback_public_keys(test_certs_t *objects,
-	CK_ATTRIBUTE template[], unsigned int template_size, CK_OBJECT_HANDLE object_handle)
+	CK_ATTRIBUTE template[], unsigned long template_size, CK_OBJECT_HANDLE object_handle)
 {
 	test_cert_t *o = NULL;
 	char *key_id;
@@ -374,8 +374,8 @@ int callback_public_keys(test_certs_t *objects,
 	/* check if we get the same public key as from the certificate */
 	if (o->key_type == CKK_RSA) {
 		BIGNUM *n = NULL, *e = NULL;
-		n = BN_bin2bn(template[4].pValue, template[4].ulValueLen, NULL);
-		e = BN_bin2bn(template[5].pValue, template[5].ulValueLen, NULL);
+		n = BN_bin2bn(template[4].pValue, (int)template[4].ulValueLen, NULL);
+		e = BN_bin2bn(template[5].pValue, (int)template[5].ulValueLen, NULL);
 		if (o->key != NULL) {
 			int rv;
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
@@ -736,7 +736,7 @@ int callback_public_keys(test_certs_t *objects,
  * Store any secret keys
  */
 int callback_secret_keys(test_certs_t *objects,
-	CK_ATTRIBUTE template[], unsigned int template_size, CK_OBJECT_HANDLE object_handle)
+	CK_ATTRIBUTE template[], unsigned long template_size, CK_OBJECT_HANDLE object_handle)
 {
 	test_cert_t *o = NULL;
 
@@ -787,7 +787,7 @@ int callback_secret_keys(test_certs_t *objects,
 
 int search_objects(test_certs_t *objects, token_info_t *info,
 	CK_ATTRIBUTE filter[], CK_LONG filter_size, CK_ATTRIBUTE template[], CK_LONG template_size,
-	int (*callback)(test_certs_t *, CK_ATTRIBUTE[], unsigned int, CK_OBJECT_HANDLE))
+	int (*callback)(test_certs_t *, CK_ATTRIBUTE[], unsigned long, CK_OBJECT_HANDLE))
 {
 	CK_RV rv;
 	CK_FUNCTION_LIST_PTR fp = info->function_pointer;
@@ -981,7 +981,7 @@ void clean_all_objects(test_certs_t *objects) {
 	free(objects->data);
 }
 
-const char *get_mechanism_name(int mech_id)
+const char *get_mechanism_name(unsigned long mech_id)
 {
 	switch (mech_id) {
 		case CKM_RSA_PKCS:
@@ -1137,12 +1137,12 @@ const char *get_mechanism_name(int mech_id)
 		case CKM_AES_KEY_WRAP_PAD:
 			return "AES_KEY_WRAP_PAD";
 		default:
-			sprintf(name_buffer, "0x%.8X", mech_id);
+			sprintf(name_buffer, "0x%.8lX", mech_id);
 			return name_buffer;
 	}
 }
 
-const char *get_mgf_name(int mgf_id)
+const char *get_mgf_name(unsigned long mgf_id)
 {
 	switch (mgf_id) {
 		case CKG_MGF1_SHA1:
@@ -1156,12 +1156,12 @@ const char *get_mgf_name(int mgf_id)
 		case CKG_MGF1_SHA512:
 			return "MGF1_SHA512";
 		default:
-			sprintf(name_buffer, "0x%.8X", mgf_id);
+			sprintf(name_buffer, "0x%.8lX", mgf_id);
 			return name_buffer;
 	}
 }
 
-const char *get_mechanism_flag_name(int mech_id)
+const char *get_mechanism_flag_name(unsigned long mech_id)
 {
 	switch (mech_id) {
 		case CKF_HW:
@@ -1213,13 +1213,13 @@ const char *get_mechanism_flag_name(int mech_id)
 		case CKF_EC_ECPARAMETERS:
 			return "CKF_EC_ECPARAMETERS";
 		default:
-			sprintf(flag_buffer, "0x%.8X", mech_id);
+			sprintf(flag_buffer, "0x%.8lX", mech_id);
 			return flag_buffer;
 	}
 }
 
 const char *
-get_mechanism_all_flag_name(int mech_id)
+get_mechanism_all_flag_name(unsigned long mech_id)
 {
 	CK_FLAGS j;
 	static char f_buffer[80];

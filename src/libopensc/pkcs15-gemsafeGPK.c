@@ -101,7 +101,7 @@ static int my_pin_cmd(sc_card_t * card, struct sc_pin_cmd_data * data,
 
 	int r;
 	const u8 *saved_data = NULL;
-	int saved_len = 0;
+	size_t saved_len = 0;
 	u8  newpin[8];
 
 	LOG_FUNC_CALLED(card->ctx);
@@ -111,8 +111,8 @@ static int my_pin_cmd(sc_card_t * card, struct sc_pin_cmd_data * data,
 	if (data->pin1.data && data->pin1.len < 8 && data->pin1.len > 0) {
 		memcpy(newpin,data->pin1.data, (size_t)data->pin1.len);
 		newpin[data->pin1.len] = 0x00;
-		
-		sc_log(card->ctx,  "pin len=%d", data->pin1.len);
+
+		sc_log(card->ctx,  "pin len=%zu", data->pin1.len);
 
 		saved_data = data->pin1.data;
 		saved_len = data->pin1.len;
@@ -200,7 +200,8 @@ static int sc_pkcs15emu_gemsafeGPK_init(sc_pkcs15_card_t *p15card)
 	sc_file_t *file = NULL;
 	sc_card_t *card = p15card->card;
 	unsigned char *gsdata = NULL;
-	unsigned int idxlen, idx1, idx2, seq_len1, seq_len2, seq_size1, seq_size2;
+	unsigned int idx2, seq_len1, seq_len2, seq_size1, seq_size2;
+	size_t idx1, idxlen;
 	sc_serial_number_t serial;
 
 	u8 sysrec[7];
@@ -364,7 +365,7 @@ static int sc_pkcs15emu_gemsafeGPK_init(sc_pkcs15_card_t *p15card)
 				r = sc_read_binary(card, idx2, gsdata + idx2, idxlen, 0);
 				if (r < 0)
 					break;
-				idx2 = idx2 + idxlen;
+				idx2 = idx2 + (int)idxlen;
 			}
 
 			if ( gsdata[idx1] == 0x30 &&
@@ -378,19 +379,19 @@ static int sc_pkcs15emu_gemsafeGPK_init(sc_pkcs15_card_t *p15card)
 					idx1 + 4 + seq_len1 < file->size) {
 				/* we have a cert (I hope) */
 				/* read in rest if needed */
-				idxlen = idx1 + seq_len1 + 4 - idx2; 
+				idxlen = idx1 + seq_len1 + 4 - idx2;
 				if (idxlen > 0) {
-					idxlen = (idxlen + 3) & 0xfffffffc;  
+					idxlen = (idxlen + 3) & 0xfffffffc;
 					r = sc_read_binary(card, idx2, gsdata + idx2, idxlen, 0);
 					if (r < 0)
 						break; /* can not read cert */
-					idx2 = idx2 + idxlen;
+					idx2 = idx2 + (int)idxlen;
 				}
 				cert_info.value.len = seq_len1 + 4;
-				sc_log(card->ctx,  "Found cert at offset %d", idx1);
-				cert_info.value.value = (unsigned char *) 
+				sc_log(card->ctx,  "Found cert at offset %zu", idx1);
+				cert_info.value.value = (unsigned char *)
 						malloc(cert_info.value.len);
-				if (!cert_info.value.value) 
+				if (!cert_info.value.value)
 					return SC_ERROR_OUT_OF_MEMORY;
 
 				memcpy(cert_info.value.value, gsdata + idx1, cert_info.value.len);

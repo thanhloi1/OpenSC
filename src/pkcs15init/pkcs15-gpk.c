@@ -58,20 +58,21 @@
 struct pkcomp {
 	unsigned char	tag;
 	u8 *		data;
-	unsigned int	size;
+	size_t	size;
 };
 
 struct pkpart {
 	struct pkcomp	components[7];
 	unsigned int	count;
-	unsigned int	size;
+	size_t	size;
 };
 
 struct pkdata {
 	unsigned int	algo;
 	unsigned int	usage;
 	struct pkpart _public, _private;
-	unsigned int	bits, bytes;
+	size_t	bits;
+	size_t bytes;
 };
 
 /*
@@ -85,8 +86,8 @@ static int	gpk_store_pk(struct sc_profile *, sc_pkcs15_card_t *,
 			sc_file_t *, struct pkdata *);
 static int	gpk_init_pinfile(sc_profile_t *, sc_pkcs15_card_t *, sc_file_t *);
 static int	gpk_pkfile_init_public(sc_profile_t *, sc_pkcs15_card_t *,
-			sc_file_t *, unsigned int, unsigned int, unsigned int);
-static int	gpk_pkfile_init_private(sc_card_t *, sc_file_t *, unsigned int);
+			sc_file_t *, unsigned int, size_t, unsigned int);
+static int	gpk_pkfile_init_private(sc_card_t *, sc_file_t *, size_t);
 static int	gpk_read_rsa_key(sc_card_t *, struct sc_pkcs15_pubkey_rsa *);
 
 
@@ -318,7 +319,8 @@ gpk_init_pinfile(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	unsigned char	buffer[GPK_MAX_PINS * 8], *blk;
 	struct sc_file	*pinfile;
 	unsigned int	so_attempts[2], user_attempts[2];
-	unsigned int	npins, i, j, cks;
+	unsigned int	i, j, cks;
+	size_t npins;
 	int		r;
 
 	SC_FUNC_CALLED(p15card->card->ctx, SC_LOG_DEBUG_VERBOSE);
@@ -505,9 +507,9 @@ gpk_generate_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 {
 	struct sc_cardctl_gpk_genkey args;
 	sc_pkcs15_prkey_info_t *key_info = (sc_pkcs15_prkey_info_t *) obj->data;
-	unsigned int    keybits;
+	size_t    keybits, n;
 	sc_file_t	*keyfile;
-	int             r, n;
+	int             r;
 
 	sc_log(p15card->card->ctx,
 		 "path=%s, %"SC_FORMAT_LEN_SIZE_T"u bits\n",
@@ -520,7 +522,7 @@ gpk_generate_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	}
 
 	/* The caller is supposed to have chosen a key file path for us */
-	if (key_info->path.len == 0 || key_info->modulus_length == 0)
+	if (key_info->path.len < 2 || key_info->modulus_length == 0)
 		return SC_ERROR_INVALID_ARGUMENTS;
 	keybits = key_info->modulus_length;
 
@@ -545,7 +547,7 @@ gpk_generate_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	memset(&args, 0, sizeof(args));
 	/*args.exponent = 0x10001;*/
 	n = key_info->path.len;
-	args.fid = (key_info->path.value[n-2] << 8) | key_info->path.value[n-1];
+	args.fid = (key_info->path.value[n - 2] << 8) | key_info->path.value[n - 1];
 	args.privlen = keybits;
 
 	r = sc_card_ctl(p15card->card, SC_CARDCTL_GPK_GENERATE_KEY, &args);
@@ -593,7 +595,7 @@ gpk_pkfile_create(sc_profile_t *profile, sc_pkcs15_card_t *p15card, sc_file_t *f
 }
 
 static int
-gpk_pkfile_keybits(unsigned int bits, unsigned char *p)
+gpk_pkfile_keybits(size_t bits, unsigned char *p)
 {
 	switch (bits) {
 	case  512: *p = 0x00; return 0;
@@ -617,7 +619,7 @@ gpk_pkfile_keyalgo(unsigned int algo, unsigned char *p)
  */
 static int
 gpk_pkfile_init_public(sc_profile_t *profile, sc_pkcs15_card_t *p15card, sc_file_t *file,
-		unsigned int algo, unsigned int bits,
+		unsigned int algo, size_t bits,
 		unsigned int usage)
 {
 	struct sc_context *ctx = p15card->card->ctx;
@@ -782,7 +784,7 @@ gpk_pkfile_update_public(struct sc_profile *profile,
 
 static int
 gpk_pkfile_init_private(sc_card_t *card,
-		sc_file_t *file, unsigned int privlen)
+		sc_file_t *file, size_t privlen)
 {
 	struct sc_cardctl_gpk_pkinit args;
 
@@ -793,7 +795,7 @@ gpk_pkfile_init_private(sc_card_t *card,
 
 static int
 gpk_pkfile_load_private(sc_card_t *card, sc_file_t *file,
-			u8 *data, unsigned int len, unsigned int datalen)
+			u8 *data, size_t len, unsigned int datalen)
 {
 	struct sc_cardctl_gpk_pkload args;
 
@@ -809,7 +811,8 @@ gpk_pkfile_update_private(struct sc_profile *profile,
 			sc_pkcs15_card_t *p15card, sc_file_t *file,
 			struct pkpart *part)
 {
-	unsigned int	m, size, nb, cks;
+	unsigned int	m, nb, cks;
+	size_t size;
 	struct pkcomp	*pe;
 	u8		data[256];
 	int		r = 0;
@@ -881,10 +884,10 @@ gpk_compute_privlen(struct pkpart *part)
  * wants them little-endian.
  */
 static void
-gpk_bn2bin(unsigned char *dest, sc_pkcs15_bignum_t *bn, unsigned int size)
+gpk_bn2bin(unsigned char *dest, sc_pkcs15_bignum_t *bn, size_t size)
 {
 	u8		*src;
-	unsigned int	n;
+	size_t	n;
 
 	assert(bn->len <= size);
 	memset(dest, 0, size);
@@ -960,7 +963,7 @@ static int gpk_encode_rsa_key(sc_profile_t *profile, sc_card_t *card,
 	} else if (5 * (p->bytes / 2) < 256) {
 		/* All CRT elements are stored in one record */
 		struct pkcomp	*comp;
-		unsigned int	K = p->bytes / 2;
+		size_t	K = p->bytes / 2;
 		u8		*crtbuf;
 
 		crtbuf = malloc(5 * K + 1);
@@ -1002,7 +1005,7 @@ gpk_store_pk(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	gpk_compute_publen(&p->_public);
 	gpk_compute_privlen(&p->_private);
 
-	sc_log(ctx,  "Storing pk: %u bits, pub %u bytes, priv %u bytes\n",
+	sc_log(ctx,  "Storing pk: %zu bits, pub %zu bytes, priv %zu bytes\n",
 			p->bits, p->_public.size, p->_private.size);
 
 	fsize = p->_public.size + p->_private.size;

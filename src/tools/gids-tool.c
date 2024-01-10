@@ -402,8 +402,8 @@ static int print_info(sc_card_t *card) {
 			printf("Unable to find the container file (mscp\\cmapfile)\n");
 		} else {
 			PCONTAINER_MAP_RECORD cmaprecords = (PCONTAINER_MAP_RECORD) cmapfile;
-			int cmaprecordnum = (cmapfilesize / sizeof(CONTAINER_MAP_RECORD));
-			int keymaprecordnum = -1;
+			size_t cmaprecordnum = (cmapfilesize / sizeof(CONTAINER_MAP_RECORD));
+			size_t keymaprecordnum = -1;
 			struct gids_keymap_record* keymaprecord = ((struct gids_keymap_record*)(keymap +1));
 			if (cmaprecordnum == 0) {
 				printf("   no container found\n");
@@ -414,7 +414,7 @@ static int print_info(sc_card_t *card) {
 				} else {
 					keymaprecordnum = (keymapsize - 1) / sizeof(struct gids_keymap_record);
 				}
-				for (i = 0; i < cmaprecordnum; i++) {
+				for (size_t i = 0; i < cmaprecordnum; i++) {
 #ifdef _WIN32
 					wprintf(L"      guid:                    %ls\n", cmaprecords[i].wszGuid);
 #else
