@@ -6,7 +6,7 @@ brew install automake gengetopt help2man pkgconfig
 
 # openSCToken
 export PATH="/usr/local/opt/ccache/libexec:$PATH"
-git clone https://github.com/frankmorgner/OpenSCToken.git
+git clone https://github.com/frankmorgner/OpenSCToken.git -b multi-apps
 sudo rm -rf /Library/Developer/CommandLineTools;
 
 if [ -n "$PASS_SECRETS_TAR_ENC" ]; then
