@@ -62,6 +62,8 @@ install:
       If (!(Test-Path cpdksetup.exe )) {
           appveyor DownloadFile "https://download.microsoft.com/download/1/7/6/176909B0-50F2-4DF3-B29B-830A17EA7E38/CPDK_RELEASE_UPDATE/cpdksetup.exe"
       }
+  - C:\cygwin64\setup-x86_64.exe -q -P gengetopt
+  - C:\cygwin\setup-x86.exe -q -P gengetopt
   - echo "Using %APPVEYOR_BUILD_WORKER_IMAGE% with %VCVARSALL%"
   - call "%VCVARSALL%" %Platform%
   - cpdksetup.exe /quiet
@@ -101,6 +103,7 @@ build_script:
   # disable features to speed up the script
   - bash -c "exec 0</dev/null && ./configure --with-cygwin-native --disable-openssl --disable-readline --disable-zlib || cat config.log"
   - bash -c "exec 0</dev/null && rm src/getopt.h"
+  - bash -c "exec 0</dev/null && make cmdline -C src/tools"
   - nmake /f Makefile.mak %NMAKE_EXTRA%
   - cd win32 && nmake /nologo /f Makefile.mak %NMAKE_EXTRA% OpenSC.msi && cd ..
   - move win32\OpenSC.msi %ARTIFACT%.msi
