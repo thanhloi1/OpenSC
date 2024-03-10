@@ -64,7 +64,7 @@ install:
       }
   # update Cygwin to install more packages, see https://github.com/appveyor/ci/issues/3820
   - curl -sSf -o C:\cygwin\setup-x86.exe https://cygwin.com/setup-x86.exe
-  - C:\cygwin\setup-x86.exe -q -P gengetopt
+  - C:\cygwin\setup-x86.exe --allow-unsupported-windows option --site circa_URL -q -P gengetopt
   - echo "Using %APPVEYOR_BUILD_WORKER_IMAGE% with %VCVARSALL%"
   - call "%VCVARSALL%" %Platform%
   - cpdksetup.exe /quiet
