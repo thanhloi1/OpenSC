@@ -70,7 +70,7 @@ install:
     #- make install
     #- cd ..
   - curl -sSf -o C:\cygwin64\setup-x86_64.exe https://cygwin.com/setup-x86_64.exe
-  - C:\cygwin64\setup-x86_64.exe -q -P gengetopt
+  - C:\cygwin64\setup-x86_64.exe -q -P gengetopt autoconf automake git libtool make pkg-config
   - echo "Using %APPVEYOR_BUILD_WORKER_IMAGE% with %VCVARSALL%"
   - call "%VCVARSALL%" %Platform%
   - cpdksetup.exe /quiet
