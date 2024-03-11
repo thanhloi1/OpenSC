@@ -62,7 +62,7 @@ install:
       If (!(Test-Path cpdksetup.exe )) {
           appveyor DownloadFile "https://download.microsoft.com/download/1/7/6/176909B0-50F2-4DF3-B29B-830A17EA7E38/CPDK_RELEASE_UPDATE/cpdksetup.exe"
       }
-      #- wget https://ftp.gnu.org/gnu/gengetopt/gengetopt-2.23.tar.xz
+    #- wget https://ftp.gnu.org/gnu/gengetopt/gengetopt-2.23.tar.xz
     #- tar xJf gengetopt-2.23.tar.xz
     #- cd gengetopt-2.23
     #- ./configure --prefix=/cygdrive/c/cygwin PKG_CONFIG_PATH=/cygdrive/c/cygwin/lib/pkg-config
@@ -70,7 +70,7 @@ install:
     #- make install
     #- cd ..
   - curl -sSf -o C:\cygwin64\setup-x86_64.exe https://cygwin.com/setup-x86_64.exe
-  - C:\cygwin64\setup-x86_64.exe -q -P gengetopt autoconf automake git libtool make pkg-config
+  - C:\cygwin64\setup-x86_64.exe -q -P gengetopt
   - echo "Using %APPVEYOR_BUILD_WORKER_IMAGE% with %VCVARSALL%"
   - call "%VCVARSALL%" %Platform%
   - cpdksetup.exe /quiet
@@ -108,7 +108,7 @@ build_script:
   - bash -c "exec 0</dev/null && if [ \"$APPVEYOR_REPO_BRANCH\" != \"master\" -a -z \"$APPVEYOR_PULL_REQUEST_NUMBER\" ]; then ./bootstrap.ci -s \"-$APPVEYOR_REPO_BRANCH\"; fi"
   - bash -c "exec 0</dev/null && if [ \"$APPVEYOR_REPO_BRANCH\" != \"master\" -a -n \"$APPVEYOR_PULL_REQUEST_NUMBER\" ]; then ./bootstrap.ci -s \"-$APPVEYOR_REPO_BRANCH-prAPPVEYOR_PULL_REQUEST_NUMBER\"; fi"
   # disable features to speed up the script
-  - bash -c "exec 0</dev/null && ./configure --with-cygwin-native --disable-openssl --disable-readline --disable-zlib || cat config.log"
+  - bash -c "exec 0</dev/null && ./configure --with-cygwin-native --disable-openssl --disable-readline --disable-zlib GENGETOPT=/cygdrive/c/cygwin64/bin/gengetopt || cat config.log"
   - bash -c "exec 0</dev/null && rm src/getopt.h"
   - bash -c "exec 0</dev/null && make cmdline -C src/tools"
   - nmake /f Makefile.mak %NMAKE_EXTRA%
