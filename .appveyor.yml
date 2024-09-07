@@ -8,6 +8,9 @@ configuration:
   - Release
   - Light
 
+variables:
+  APPVEYOR_REPO_BRANCH: stable-0.25
+
 environment:
   GH_TOKEN:
     secure: jeReA6BNx/dXVMGfroKadgVyPPLNrGL1pvLfc+sizlOLebm/+chuB9AcOi5mTdqHIb3E+TGIR+9fZ+kJotsjCF63ElwE8oJni0Ugrrs16SFwHLAnLpzZBQ5uuIOTVh1X
